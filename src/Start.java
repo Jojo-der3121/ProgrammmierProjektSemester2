@@ -1,52 +1,68 @@
-import ProgrammierProjektSemester2.*;
+import Products.*;
+
+import javax.swing.*;
 import java.io.*;
 import java.util.Scanner;
 
 public class Start {
     public Product[][][] shelf = new Product[3][4][2];
     public Order[] orders = new Order [3];
-    public String[][] orderArray = new String[47][5]
+    public Order selectedOrder;
+    public String[][] orderArray = new String[47][5];
     public int OrderIndex;
     public int earnings;
 
-        public static void main(String[] args){
-            File getCSVFiles = new File("/Leistungsnachweis.csv");
+    public boolean selectedSecondLayer;
+
+        public static void main(String[] args)throws FileNotFoundException{
+            Start start = new Start();
+            start.initializeOrderArray();
+            JFrame tach3 = new JFrame("Fach Lagerrist");
+            tach3.setSize(650,450);
+            tach3.setContentPane(new FachLagerist(start).tach4);
+            tach3.setVisible(true);
+            tach3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        }
+
+        public void initializeOrderArray()  throws FileNotFoundException{
+            File getCSVFiles = new File("Leistungsnachweis.csv");
             Scanner sc = new Scanner(getCSVFiles);
-            sc.useDelimiter(",");
-            for(i =0; i< (OrderIndex)*6;i++ ){
+            sc.useDelimiter(";|\n");
+
+            for(int i =0; i< 6;i++ ){
                 sc.next();
             }
-            for(i=0; i<47;i++){
+            for(int i=0; i<5;i++){
                 sc.next();
-                for(e=0;e<5;e++){
+                for(int e=0;e<5;e++){
                     orderArray[i][e] = sc.next();
                 }
             }
+            sc.close();
         }
 
     public boolean InsertProduct(int selectedFieldY, int selectedFieldX, int selectedFieldZ ,Product product){
-        switch(product.productType){
-            case ProducType.Paper:
-                if(shelf[selectedFieldY][selectedFieldX][selectedFieldZ] != null){
-                    shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = product;
-                    return true;
-                }
-                return false;
-            case ProducType.Wood:
+        switch(product.secondAttribute){
+            case Beams:
                 if( IsRoomForWood(selectedFieldY, selectedFieldX)){
                     for(int i = 0; i <2; i++){
-                        shelf[y][x][i] = product;
+                        shelf[selectedFieldY][selectedFieldX][i] = product;
                         }
                     return true;
                     }
                 return false;
-            case ProducType.Stone:
-                if(shelf[selectedFieldY][selectedFieldX][selectedFieldZ] != null && !IsStoneTooHeavy(selectedFieldY,product.weightOfStone)){
+            case Medium:
+            case Heavy:
+                if(shelf[selectedFieldY][selectedFieldX][selectedFieldZ] != null && !IsStoneTooHeavy(selectedFieldY,product.secondAttribute)){
                     shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = product;
                     return true;
                 }
                 return false;
             default:
+                if(shelf[selectedFieldY][selectedFieldX][selectedFieldZ] != null){
+                    shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = product;
+                    return true;
+                }
                 return false;
         }
     }
@@ -67,7 +83,7 @@ public boolean IsRoomForWood(int y, int x){
     return true;
 }
 
-public boolean IsStoneTooHeavy(int y,WeightOfStone stoneWeight){
+public boolean IsStoneTooHeavy(int y,SecondAttribute stoneWeight){
         switch(stoneWeight){
             case Leight:
                 return false;
@@ -87,82 +103,82 @@ public Order GetNewOrder(){
     if(orderArray[OrderIndex][0] == "Einlagerung") newOrder.insertProduct = true;
     switch(orderArray[OrderIndex % 47][1]){
         case "Papier":
-            newOrder.Product.productType = ProductType.Paper;
+            newOrder.product.productType = ProductType.Paper;
             break;
         case "Holz":
-            newOrder.Product.productType = ProductType.Wood;
+            newOrder.product.productType = ProductType.Wood;
             break;
         case "Stein":
-            newOrder.Product.productType = ProductType.Stone;
+            newOrder.product.productType = ProductType.Stone;
             break;
         default:
             return null;
     }
     switch(orderArray[OrderIndex % 47][2]){
         case "Weiss":
-            newOrder.Product.firstAttribute = FirstAttribute.White;
+            newOrder.product.firstAttribute = FirstAttribute.White;
             break;
         case "Gruen":
-            newOrder.Product.firstAttribute = FirstAttribute.Green;
+            newOrder.product.firstAttribute = FirstAttribute.Green;
             break;
         case "Blau":
-            newOrder.Product.firstAttribute = FirstAttribute.Blue;
+            newOrder.product.firstAttribute = FirstAttribute.Blue;
             break;
         case "Marmor":
-            newOrder.Product.firstAttribute = FirstAttribute.Marble;
+            newOrder.product.firstAttribute = FirstAttribute.Marble;
             break;
         case "Granit":
-            newOrder.Product.firstAttribute = FirstAttribute.Granite;
+            newOrder.product.firstAttribute = FirstAttribute.Granite;
             break;
         case "Sandstein":
-            newOrder.Product.firstAttribute = FirstAttribute.Sandstone;
+            newOrder.product.firstAttribute = FirstAttribute.Sandstone;
             break;
         case "Buche":
-            newOrder.Product.firstAttribute = FirstAttribute.Beech;
+            newOrder.product.firstAttribute = FirstAttribute.Beech;
             break;
         case "Eiche":
-            newOrder.Product.firstAttribute = FirstAttribute.Oak;
+            newOrder.product.firstAttribute = FirstAttribute.Oak;
             break;
         case "Kiefer":
-            newOrder.Product.firstAttribute = FirstAttribute.Pine;
+            newOrder.product.firstAttribute = FirstAttribute.Pine;
             break;
         default:
             return null;
     }
     switch(orderArray[OrderIndex % 47][3]){
         case "A3":
-            newOrder.Product.secondAttribute = SecondAttribute.A3;
+            newOrder.product.secondAttribute = SecondAttribute.A3;
             break;
         case "A4":
-            newOrder.Product.secondAttribute = SecondAttribute.A4;
+            newOrder.product.secondAttribute = SecondAttribute.A4;
             break;
         case "A5":
-            newOrder.Product.secondAttribute = SecondAttribute.A5;
+            newOrder.product.secondAttribute = SecondAttribute.A5;
             break;
         case "Bretter":
-            newOrder.Product.secondAttribute = SecondAttribute.Boards;
+            newOrder.product.secondAttribute = SecondAttribute.Boards;
             break;
         case "Balken":
-            newOrder.Product.secondAttribute = SecondAttribute.Beams;
+            newOrder.product.secondAttribute = SecondAttribute.Beams;
             break;
         case "Scheit":
-            newOrder.Product.secondAttribute = SecondAttribute.Logs;
+            newOrder.product.secondAttribute = SecondAttribute.Logs;
             break;
         case "Leicht":
-            newOrder.Product.secondAttribute = SecondAttribute.Leight;
+            newOrder.product.secondAttribute = SecondAttribute.Leight;
             break;
         case "Mittel":
-            newOrder.Product.secondAttribute = SecondAttribute.Medium;
+            newOrder.product.secondAttribute = SecondAttribute.Medium;
             break;
         case "Schwer":
-            newOrder.Product.secondAttribute = SecondAttribute.Heavy;
+            newOrder.product.secondAttribute = SecondAttribute.Heavy;
             break;
         default:
             return null;
     }
-    newOrder.reward = orderArray[OrderIndex% 47][4];
+    newOrder.reward = Integer.parseInt(orderArray[OrderIndex% 47][4]);
 
-    sc.close();
+
     OrderIndex ++;
     return newOrder;
 }
