@@ -1,7 +1,7 @@
 package Products;
 
 public class Order {
-    public Product product;
-    public int reward;
-    public boolean insertProduct;
+    public Product product = new Product();
+    public int reward = 0;
+    public boolean insertProduct = false;
 }

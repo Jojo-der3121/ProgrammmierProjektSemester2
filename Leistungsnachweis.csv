@@ -1,5 +1,6 @@
 Auftrag;Auftragsart;Produkt;Attribut1;Attribut2;Belohnung
 1;Einlagerung;Papier;Weiss;A4;200
+1;Auslagerung;Papier;Weiss;A4;200
 2;Einlagerung;Papier;Blau;A5;300
 3;Einlagerung;Holz;Kiefer;Bretter;200
 4;Einlagerung;Holz;Buche;Balken;500

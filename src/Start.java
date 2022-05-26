@@ -6,22 +6,24 @@ import java.util.Scanner;
 
 public class Start {
     public Product[][][] shelf = new Product[3][4][2];
+    public Product selectedProduct;
     public Order[] orders = new Order [3];
     public Order selectedOrder;
     public String[][] orderArray = new String[47][5];
-    public int OrderIndex;
-    public int earnings;
+    public int OrderIndex= 0;
+    public int earnings = 0;
 
     public boolean selectedSecondLayer;
 
         public static void main(String[] args)throws FileNotFoundException{
             Start start = new Start();
             start.initializeOrderArray();
-            JFrame tach3 = new JFrame("Fach Lagerrist");
-            tach3.setSize(650,450);
-            tach3.setContentPane(new FachLagerist(start).tach4);
-            tach3.setVisible(true);
-            tach3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            JFrame gameFrame = new JFrame("Fach Lagerrist");
+            gameFrame.setSize(1010,1010);
+            gameFrame.setResizable(false);
+            gameFrame.setContentPane(new FachLagerist(start).FormPanel);
+            gameFrame.setVisible(true);
+            gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
         public void initializeOrderArray()  throws FileNotFoundException{
@@ -32,45 +34,71 @@ public class Start {
             for(int i =0; i< 6;i++ ){
                 sc.next();
             }
-            for(int i=0; i<5;i++){
+            for(int i=0; i<47;i++){
                 sc.next();
                 for(int e=0;e<5;e++){
                     orderArray[i][e] = sc.next();
                 }
             }
+
             sc.close();
         }
 
-    public boolean InsertProduct(int selectedFieldY, int selectedFieldX, int selectedFieldZ ,Product product){
-        switch(product.secondAttribute){
+        public void ExportProduct(int X, int Y){
+                DisposeProduct(X,Y);
+                earnings += 300;
+                earnings += selectedOrder.reward;
+        }
+
+    public boolean InsertProduct(int selectedFieldY, int selectedFieldX){
+            int selectedFieldZ;
+            if(selectedSecondLayer) selectedFieldZ = 1;
+            else selectedFieldZ = 0;
+        switch(selectedOrder.product.secondAttribute){
             case Beams:
                 if( IsRoomForWood(selectedFieldY, selectedFieldX)){
                     for(int i = 0; i <2; i++){
-                        shelf[selectedFieldY][selectedFieldX][i] = product;
+                        shelf[selectedFieldY][selectedFieldX][i] = selectedOrder.product;
                         }
+                    earnings += selectedOrder.reward;
                     return true;
                     }
                 return false;
             case Medium:
             case Heavy:
-                if(shelf[selectedFieldY][selectedFieldX][selectedFieldZ] != null && !IsStoneTooHeavy(selectedFieldY,product.secondAttribute)){
-                    shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = product;
+                if(selectedFieldZ==0 && shelf[selectedFieldY][selectedFieldX][selectedFieldZ] == null && !IsStoneTooHeavy(selectedFieldY,selectedOrder.product.secondAttribute )||shelf[selectedFieldY][selectedFieldX][0] == null && shelf[selectedFieldY][selectedFieldX][selectedFieldZ] == null && !IsStoneTooHeavy(selectedFieldY,selectedOrder.product.secondAttribute )){
+                    shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = selectedOrder.product;
+                    earnings += selectedOrder.reward;
                     return true;
                 }
                 return false;
             default:
-                if(shelf[selectedFieldY][selectedFieldX][selectedFieldZ] != null){
-                    shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = product;
+                if(selectedFieldZ==0 && shelf[selectedFieldY][selectedFieldX][selectedFieldZ] == null ||shelf[selectedFieldY][selectedFieldX][selectedFieldZ] == null && shelf[selectedFieldY][selectedFieldX][0] == null ){
+                    shelf[selectedFieldY][selectedFieldX][selectedFieldZ] = selectedOrder.product;
+                    earnings += selectedOrder.reward;
                     return true;
                 }
                 return false;
         }
     }
 
+    public void DisposeProduct(int X,int Y){
+            int Z;
+            if(selectedSecondLayer) Z = 1 ;
+            else Z= 0;
+            if(shelf[Y][X][Z].secondAttribute != SecondAttribute.Beams) {
+                shelf[Y][X][Z] = null;
+            }
+            else{
+                shelf[Y][X][0] = null;
+                shelf[Y][X][1] = null;
+            }
+            earnings -=300;
+    }
+
     public void switchProductLocation(int extractFieldY, int extractFieldX, int extractFieldZ ,int destinationFieldY, int destinationFieldX, int destinationFieldZ ){
-    Product productCache = shelf[extractFieldY][extractFieldX][extractFieldZ];
+    shelf [destinationFieldY][destinationFieldX][destinationFieldZ] =shelf[extractFieldY][extractFieldX][extractFieldZ] ;
     shelf[extractFieldY][extractFieldX][extractFieldZ] = null;
-    shelf [destinationFieldY][destinationFieldX][destinationFieldZ] = productCache;
     earnings -= 100;
 }
 
@@ -100,7 +128,7 @@ public boolean IsStoneTooHeavy(int y,SecondAttribute stoneWeight){
 
 public Order GetNewOrder(){
     Order newOrder = new Order();
-    if(orderArray[OrderIndex][0] == "Einlagerung") newOrder.insertProduct = true;
+    if(orderArray[OrderIndex % 47][0].equals(new String("Einlagerung"))) newOrder.insertProduct = true;
     switch(orderArray[OrderIndex % 47][1]){
         case "Papier":
             newOrder.product.productType = ProductType.Paper;
@@ -176,10 +204,12 @@ public Order GetNewOrder(){
         default:
             return null;
     }
-    newOrder.reward = Integer.parseInt(orderArray[OrderIndex% 47][4]);
+    newOrder.reward =  Integer.parseInt(orderArray[OrderIndex% 47][4].replace("\r", ""));
 
 
     OrderIndex ++;
     return newOrder;
 }
+
+
 }
